@@ -1,0 +1,92 @@
+import csv
+
+class Pharmacy:
+    def _init_(self):
+        self.pharmacy_info = {}
+
+    def add_pharmacy(self, name, location):
+        if name not in self.pharmacy_info:
+            self.pharmacy_info[name] = {'location': location, 'medicines': {}}
+            print(f"Pharmacy '{name}' added successfully.")
+        else:
+            print(f"Pharmacy '{name}' already exists.")
+
+    def add_medicine(self, name, medicine, stock):
+        if name in self.pharmacy_info:
+            self.pharmacy_info[name]['medicines'][medicine] = stock
+            print(f"Medicine '{medicine}' added to pharmacy '{name}' with stock {stock}.")
+        else:
+            print(f"Pharmacy '{name}' does not exist.")
+
+    def display_pharmacy_info(self, name):
+        if name in self.pharmacy_info:
+            info = self.pharmacy_info[name]
+            print(f"Pharmacy Name: {name}")
+            print(f"Location: {info['location']}")
+            print("Medicines:")
+            for medicine, stock in info['medicines'].items():
+                print(f"  - {medicine}, Stock: {stock}")
+        else:
+            print(f"Pharmacy '{name}' does not exist.")
+
+    def save_to_csv(self, filename):
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Pharmacy Name", "Location", "Medicine", "Stock"])
+            for pharmacy_name, pharmacy_data in self.pharmacy_info.items():
+                location = pharmacy_data['location']
+                for medicine, stock in pharmacy_data['medicines'].items():
+                    writer.writerow([pharmacy_name, location, medicine, stock])
+
+    def read_from_csv(self, filename):
+        with open(filename, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Skip header row
+
+            for row in reader:
+                pharmacy_name = row[0]
+                location = row[1]
+                medicine = row[2]
+                stock = int(row[3])
+
+                if pharmacy_name not in self.pharmacy_info:
+                    self.pharmacy_info[pharmacy_name] = {'location': location, 'medicines': {}}
+
+                self.pharmacy_info[pharmacy_name]['medicines'][medicine] = stock
+
+# Example usage:
+pharmacy_system = Pharmacy()
+
+while True:
+    # Take user input for pharmacy details
+    pharmacy_name = input("Enter the pharmacy's name (or 'done' to finish): ")
+    if pharmacy_name.lower() == 'done':
+        break
+
+    pharmacy_location = input("Enter the pharmacy's location: ")
+
+    # Add the pharmacy to the system
+    pharmacy_system.add_pharmacy(pharmacy_name, pharmacy_location)
+    
+    # Take user input for medicines and stock
+    while True:
+        medicine_name = input("Enter a medicine available at the pharmacy (or 'done' to finish): ")
+        if medicine_name.lower() == 'done':
+            break
+        else:
+            stock = int(input(f"Enter the stock for {medicine_name}: "))
+            pharmacy_system.add_medicine(pharmacy_name, medicine_name, stock)
+
+# Save pharmacy information to CSV file
+pharmacy_system.save_to_csv('pharmacy_data.csv')
+
+# Display pharmacy information for all entered pharmacies
+for pharmacy_name in pharmacy_system.pharmacy_info:
+    pharmacy_system.display_pharmacy_info(pharmacy_name)
+
+# Read and display pharmacy information from CSV file
+pharmacy_system.read_from_csv('pharmacy_data.csv')
+
+print("\nPharmacy information read from CSV:")
+for pharmacy_name in pharmacy_system.pharmacy_info:
+    pharmacy_system.display_pharmacy_info(pharmacy_name)

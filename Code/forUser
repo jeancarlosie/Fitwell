@@ -1,0 +1,130 @@
+import requests
+import math
+import csv
+
+class PharmacyNode:
+    def __init__(self, name, location):
+        self.name = name
+        self.location = location  # Location is now a string
+        self.inventory = {}
+        self.children = []
+
+    def add_child(self, child):
+        self.children.append(child)
+
+    def add_stock(self, medicine_name, quantity):
+        self.inventory[medicine_name.lower()] = quantity
+
+
+class PharmacyTree:
+    def __init__(self):
+        self.root = None
+
+    def add_pharmacy(self, parent_node, pharmacy_name, location, stock):
+        if not self.root:
+            self.root = PharmacyNode(pharmacy_name, location)
+            for med, qty in stock.items():
+                self.root.add_stock(med, qty)
+        else:
+            parent_node = self._find_node(self.root, parent_node)
+            if parent_node:
+                new_pharmacy = PharmacyNode(pharmacy_name, location)
+                parent_node.add_child(new_pharmacy)
+                for med, qty in stock.items():
+                    new_pharmacy.add_stock(med, qty)
+            else:
+                print(f"Parent pharmacy '{parent_node}' not found.")
+
+    def find_pharmacies_with_medicine(self, user_location, medicine_name):
+        nearest_pharmacies = self._find_nearest_pharmacies(self.root, user_location)
+        pharmacies_with_medicine = []
+
+        for pharmacy in nearest_pharmacies:
+            if medicine_name.lower() in pharmacy.inventory and pharmacy.inventory[medicine_name.lower()] > 0:
+                pharmacies_with_medicine.append(pharmacy)
+
+        return pharmacies_with_medicine
+
+    def _find_node(self, current_node, name):
+        if current_node.name == name:
+            return current_node
+        for child in current_node.children:
+            found = self._find_node(child, name)
+            if found:
+                return found
+        return None
+
+    def _find_nearest_pharmacies(self, current_node, user_location):
+        return self._get_all_pharmacies(current_node)
+
+    def _get_all_pharmacies(self, current_node):
+        pharmacies = []
+        if current_node:
+            pharmacies.append(current_node)
+            for child in current_node.children:
+                pharmacies += self._get_all_pharmacies(child)
+        return pharmacies
+
+
+def read_pharmacy_data_from_csv(filename):
+    pharmacy_tree = PharmacyTree()
+
+    with open(filename, mode='r') as file:
+        reader = csv.reader(file)
+        header = next(reader)  # Get the header row
+
+        for row in reader:
+            pharmacy_name = row[0]
+            location = row[1]
+            medicine_name = row[2]
+            quantity = int(row[3])
+
+            pharmacy_tree.add_pharmacy("User Location", pharmacy_name, location, {medicine_name: quantity})
+
+    return pharmacy_tree
+
+
+# Function to convert address to coordinates using Nominatim API
+def address_to_coordinates(address):
+    base_url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "q": address,
+        "format": "json",
+    }
+
+    response = requests.get(base_url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            return float(data[0]['lat']), float(data[0]['lon'])
+    return None
+
+
+# Example usage
+pharmacy_tree = read_pharmacy_data_from_csv('pharmacy_data.csv')
+
+address = input("Enter an address, including city and postcode: ")
+user_location = address_to_coordinates(address)
+
+if user_location:
+    user_input = input("Enter the medicine you're looking for: ")
+    pharmacies_with_medicine = pharmacy_tree.find_pharmacies_with_medicine(user_location, user_input)
+
+    if pharmacies_with_medicine:
+        distances = {}
+        for pharmacy in pharmacies_with_medicine:
+            # Skip distance calculation for now, as location is a string
+            distances[pharmacy.name] = 0
+
+        closest_pharmacy = min(distances, key=distances.get)
+
+        print(f"The medicine '{user_input}' is available at the following pharmacies:")
+        for pharmacy_name in distances:
+            print(pharmacy_name)
+
+        print(f"The closest pharmacy with '{user_input}' is: {closest_pharmacy}")
+    else:
+        print(f"The medicine '{user_input}' is not available at any pharmacies near your location.")
+else:
+    print("Unable to find coordinates for the provided address.")

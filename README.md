@@ -43,8 +43,8 @@ Limitations:
 
 # Credits
 The authors of this project are:
-Yasmin Tandon
-Leopoldo Sirolli
-Juancho Mulato
-Matías Viguera
+Yasmin Tandon,
+Leopoldo Sirolli, 
+Juancho Mulato, 
+Matías Viguera, 
 Jean Carlos

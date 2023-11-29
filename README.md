@@ -16,7 +16,7 @@ To run our program, you must install:
   * import requests
   * import maths
  
-Now that you have installed all the requirements, open the file "Fitwell.py" and run the program.
+Now that you have installed all the requirements, you can run the program.
 
 # Dataset
 The dataset includes the name, location, names of the medicines being sold at the pharmacy and their stock level, for each pharmacy in Segovia. This data will be manually inputted by each pharmacy using the program "forPharmacy", which will be written to a CSV file named "pharmacy_data.csv". This allows for real-time updates and synchronisation of pharmacy inventories.
@@ -34,12 +34,12 @@ Limitations:
 * forUser.py: Manages user interactions, allowing them to search for the nearest pharamcies that have their desired medicine in stock.
 
 # Further Improvements
-1. User Authentication: Implement user authentication to manage highly sensitively and confidential health information.
+1. User Authentication: Implement user authentication to manage highly sensitive and confidential health information.
 2. Interface with Healthcare Providers: Develop a system for healthcare providers to input their patients' prescriptions directly into the system, ensuring they are taking the right medicines in the right doses and reducing manual entry by users.
 3. Integration with Delivery Services: Implement a feature that delivers medicines to the doorsteps of users in order to increase the accessibility of medicines for everyone, especially for people with limited mobility.
 4. Analytics Dashboard: Develop an analytics dashboard for pharmacies to track demand trends for medicines over time, improving inventory management.
 5. Error handling: Error handling for user inputs to prevent issues from arising due to invalid or incomplete inputs.
-6. Efficiency: Increase the efficiency of the program by using more efficient data structures and algorithms for managing the pharmaceutical data.
+6. Efficiency: Increase the efficiency of the program by using more efficient data structures and algorithms to manage the pharmacy data.
 
 # Credits
 The authors of this project are:

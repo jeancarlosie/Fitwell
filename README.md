@@ -9,14 +9,21 @@ Complex data structures and algorithms will be required to perform these functio
 
 Watch the following video for more information: https://www.youtube.com/watch?v=NnMCcCeiTJ0
 
-# Installation
+# Requirements
 To run our program, you must install:
-* Python programming language (all version between 3.6 and 3.11).
+* Python programming language (all versions between 3.6 and 3.11).
 * Python libraries: requests, maths. To install these libraries, type the following commands:
   * import requests
   * import maths
  
 Now that you have installed all the requirements, you can run the program.
+
+Additional information: 
+* We have developed this code in the Mac OS operating system.
+* Both codes have been designed to run in Python evironments where the following conditions have been met:
+  * Python environment (all versions between 3.6 and 3.11).
+  * File system access: The code needs to be run in an environment where it has permission to read and write to the file.
+  * User input: The code relies on user inputs, so it must be run in an interactive Python environment. 
 
 # Dataset
 The dataset includes the name, location, names of the medicines being sold at the pharmacy and their stock level, for each pharmacy in Segovia. This data will be manually inputted by each pharmacy using the program "forPharmacy", which will be written to a CSV file named "pharmacy_data.csv". This allows for real-time updates and synchronisation of pharmacy inventories.

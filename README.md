@@ -21,8 +21,10 @@ The code for USER USE has been designed to run in a programming language where t
 * Python environment (all versions between 3.6 and 3.11).
 * Python libraries: requests, maths, csv. To install these libraries, type the following commands:
   * import requests
-  * import maths
   * import csv
+  * import tkinter as tk
+  * from tkinter import messagebox
+  * from math import radians, sin, cos, sqrt, atan2
 * Internet access: The Python environment will need access to the internet iin order to make HTTP requests to the Nominatim API, which will 
   convert the user's address to coordinates.
 * File system access: The code needs to be run in an environment where it has permission to read and write to the file.

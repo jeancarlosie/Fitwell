@@ -19,7 +19,7 @@ We have written 2 codes, one for user use and one for pharmacy use. We have deve
 
 The code for USER USE has been designed to run in a programming language where the following conditions have been met:
 * Python environment (all versions between 3.6 and 3.11).
-* Python libraries: requests, maths, csv. To install these libraries, type the following commands:
+* Python libraries: requests, maths, csv, tkinter, math. To install these libraries, type the following commands:
   * import requests
   * import csv
   * import tkinter as tk

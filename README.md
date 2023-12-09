@@ -7,8 +7,6 @@ Our platform has 2 primary functions:
 
 Complex data structures and algorithms will be required to perform these functions, including trees, dictionaries, tree traversal, and search algorithm.
 
-Watch the following video for more information: https://www.youtube.com/watch?v=NnMCcCeiTJ0
-
 # File Architecture
 * forPharmacy.py: Manages pharmacy and medicine data, inputted by pharmacies themselves.
 * forUser.py: Manages user interactions, allowing them to search for the nearest pharamcies that have their desired medicine in stock.
@@ -60,13 +58,15 @@ Limitations:
 # User Stories
 Prescription refill management:  User opens the app → Assuming that they have an activated account, the user clicks on the pill icon on the homepage → User’s prescribed drugs and their corresponding dosing schedules is displayed (both of which are inputted into the system by the user’s healthcare provider - this feature is only available to users with healthcare providers who have implemented Fitwell into the healthcare system) → User taps on the prescribed drug that they want to refill →If the user’s healthcare provider has authorized a prescription refill within the app, the user will be directed to a pharmacy inventory page displaying the nearest pharmacies carrying the prescribed drug - for each pharmacy that is displayed, the distance from the user’s current location to the pharmacy and the availability of the prescribed drug at the pharmacy will also be displayed. If the user’s healthcare provider has not authorized a prescription refill within the app, the interface will not respond.
 
+Watch the following video for more information: https://www.youtube.com/watch?v=NnMCcCeiTJ0
+
 # Further Improvements
 1. User Authentication: Implement user authentication to manage highly sensitive and confidential health information.
 2. Interface with Healthcare Providers: Develop a system for healthcare providers to input their patients' prescriptions directly into the system, ensuring they are taking the right medicines in the right doses and reducing manual entry by users.
 3. Integration with Delivery Services: Implement a feature that delivers medicines to the doorsteps of users in order to increase the accessibility of medicines for everyone, especially for people with limited mobility.
 4. Analytics Dashboard: Develop an analytics dashboard for pharmacies to track demand trends for medicines over time, improving inventory management.
 5. Error handling: Error handling for user inputs to prevent issues from arising due to invalid or incomplete inputs.
-6. Efficiency: Increase the efficiency of the program by using more efficient data structures and algorithms to manage the pharmacy data.
+6. Efficiency: Increase the efficiency of the program by using more efficient data structures and algorithms to manage the pharmacy data. We could use k-d trees or quadtrees instead of general tree structures to reduce the number of distance calculations neede and therefore reduce the running time of nearest neighbour search. 
 
 # Credits
 The authors of this project are:

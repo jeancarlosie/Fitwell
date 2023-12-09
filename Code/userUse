@@ -1,11 +1,13 @@
 import requests
-import math
 import csv
+import tkinter as tk
+from tkinter import messagebox
+from math import radians, sin, cos, sqrt, atan2
 
 class PharmacyNode:
     def __init__(self, name, location):
         self.name = name
-        self.location = location  # Location is now a string
+        self.location = location  # Location is now a dictionary with 'lat' and 'lon'
         self.inventory = {}
         self.children = []
 
@@ -18,22 +20,15 @@ class PharmacyNode:
 
 class PharmacyTree:
     def __init__(self):
-        self.root = None
+        self.root = PharmacyNode("Root", {'lat': 0.0, 'lon': 0.0})  # Initialize with a default root
 
     def add_pharmacy(self, parent_node, pharmacy_name, location, stock):
-        if not self.root:
-            self.root = PharmacyNode(pharmacy_name, location)
+        parent_node = self._find_node(self.root, parent_node)
+        if parent_node:
+            new_pharmacy = PharmacyNode(pharmacy_name, location)
+            parent_node.add_child(new_pharmacy)
             for med, qty in stock.items():
-                self.root.add_stock(med, qty)
-        else:
-            parent_node = self._find_node(self.root, parent_node)
-            if parent_node:
-                new_pharmacy = PharmacyNode(pharmacy_name, location)
-                parent_node.add_child(new_pharmacy)
-                for med, qty in stock.items():
-                    new_pharmacy.add_stock(med, qty)
-            else:
-                print(f"Parent pharmacy '{parent_node}' not found.")
+                new_pharmacy.add_stock(med, qty)
 
     def find_pharmacies_with_medicine(self, user_location, medicine_name):
         nearest_pharmacies = self._find_nearest_pharmacies(self.root, user_location)
@@ -45,6 +40,14 @@ class PharmacyTree:
 
         return pharmacies_with_medicine
 
+    def find_nearest_pharmacy(self, user_location, medicine_name):
+        nearest_pharmacies = self._find_nearest_pharmacies(self.root, user_location)
+        for pharmacy in nearest_pharmacies:
+            if medicine_name.lower() in pharmacy.inventory and pharmacy.inventory[medicine_name.lower()] > 0:
+                return pharmacy
+
+        return None
+
     def _find_node(self, current_node, name):
         if current_node.name == name:
             return current_node
@@ -55,7 +58,26 @@ class PharmacyTree:
         return None
 
     def _find_nearest_pharmacies(self, current_node, user_location):
-        return self._get_all_pharmacies(current_node)
+        distances = {pharmacy: self._calculate_distance(user_location, pharmacy.location) for pharmacy in self._get_all_pharmacies(current_node)}
+        sorted_distances = sorted(distances.items(), key=lambda x: x[1])
+        return [pharmacy for pharmacy, _ in sorted_distances]
+
+    def _calculate_distance(self, coord1, coord2):
+        # Calculate the distance between two sets of coordinates using Haversine formula
+        lat1, lon1 = radians(coord1['lat']), radians(coord1['lon'])
+        lat2, lon2 = radians(coord2['lat']), radians(coord2['lon'])
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        # Radius of the Earth in kilometers
+        R = 6371.0
+
+        distance = R * c
+        return distance
 
     def _get_all_pharmacies(self, current_node):
         pharmacies = []
@@ -75,11 +97,14 @@ def read_pharmacy_data_from_csv(filename):
 
         for row in reader:
             pharmacy_name = row[0]
-            location = row[1]
+            location_str = row[1]
             medicine_name = row[2]
             quantity = int(row[3])
 
-            pharmacy_tree.add_pharmacy("User Location", pharmacy_name, location, {medicine_name: quantity})
+            # Convert location string to dictionary
+            location_dict = address_to_coordinates(location_str)
+
+            pharmacy_tree.add_pharmacy("Root", pharmacy_name, location_dict, {medicine_name: quantity})
 
     return pharmacy_tree
 
@@ -97,34 +122,59 @@ def address_to_coordinates(address):
     if response.status_code == 200:
         data = response.json()
         if data:
-            return float(data[0]['lat']), float(data[0]['lon'])
+            return {'lat': float(data[0]['lat']), 'lon': float(data[0]['lon'])}
     return None
+
+
+def search_button_click(address_entry, medicine_entry, result_text, pharmacy_tree):
+    address = address_entry.get()
+    user_input = medicine_entry.get().lower()
+
+    user_location = address_to_coordinates(address)
+
+    if user_location:
+        pharmacies_with_medicine = pharmacy_tree.find_pharmacies_with_medicine(user_location, user_input)
+
+        if pharmacies_with_medicine:
+            closest_pharmacy = pharmacy_tree.find_nearest_pharmacy(user_location, user_input)
+            result_text.set(f"The medicine '{user_input}' is available at the following pharmacies:\n" +
+                            "\n".join(pharmacy.name for pharmacy in pharmacies_with_medicine) +
+                            f"\nThe closest pharmacy with '{user_input}' is: {closest_pharmacy.name}")
+        else:
+            result_text.set(f"The medicine '{user_input}' is not available at any pharmacies near your location.")
+    else:
+        result_text.set("Unable to find coordinates for the provided address.")
+
+
+def exit_button_click():
+    window.destroy()
 
 
 # Example usage
 pharmacy_tree = read_pharmacy_data_from_csv('pharmacy_data.csv')
 
-address = input("Enter an address, including city and postcode: ")
-user_location = address_to_coordinates(address)
+# GUI setup
+window = tk.Tk()
+window.title("Pharmacy Search")
 
-if user_location:
-    user_input = input("Enter the medicine you're looking for: ")
-    pharmacies_with_medicine = pharmacy_tree.find_pharmacies_with_medicine(user_location, user_input)
+address_label = tk.Label(window, text="Enter an address, including city and postcode:")
+address_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+address_entry = tk.Entry(window, width=50)
+address_entry.grid(row=0, column=1, padx=10, pady=10)
 
-    if pharmacies_with_medicine:
-        distances = {}
-        for pharmacy in pharmacies_with_medicine:
-            # Skip distance calculation for now, as location is a string
-            distances[pharmacy.name] = 0
+medicine_label = tk.Label(window, text="Enter the medicine you're looking for:")
+medicine_label.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+medicine_entry = tk.Entry(window, width=50)
+medicine_entry.grid(row=1, column=1, padx=10, pady=10)
 
-        closest_pharmacy = min(distances, key=distances.get)
+search_button = tk.Button(window, text="Search", command=lambda: search_button_click(address_entry, medicine_entry, result_text, pharmacy_tree))
+search_button.grid(row=2, column=0, padx=10, pady=10)
 
-        print(f"The medicine '{user_input}' is available at the following pharmacies:")
-        for pharmacy_name in distances:
-            print(pharmacy_name)
+exit_button = tk.Button(window, text="Exit", command=exit_button_click)
+exit_button.grid(row=2, column=1, padx=10, pady=10)
 
-        print(f"The closest pharmacy with '{user_input}' is: {closest_pharmacy}")
-    else:
-        print(f"The medicine '{user_input}' is not available at any pharmacies near your location.")
-else:
-    print("Unable to find coordinates for the provided address.")
+result_text = tk.StringVar()
+result_label = tk.Label(window, textvariable=result_text)
+result_label.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
+window.mainloop()
